@@ -1,0 +1,18 @@
+{% extends 'tax_assistant/base.html' %}
+
+{% block title %}Tax Profile Settings{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="mb-12">
+        <h1 class="text-4xl font-black text-neutral-900 dark:text-white tracking-tighter mb-4">Tax Profile</h1>
+        <p class="text-neutral-400 font-light leading-relaxed">Adjust your personal details and dependents to optimize your tax calculations.</p>
+    </div>
+
+    <div class="bg-white dark:bg-neutral-900 rounded-[2.5rem] shadow-2xl border border-neutral-100 dark:border-neutral-800 overflow-hidden">
+        <div id="profile-form-container" class="p-12">
+            {% include 'tax_assistant/_profile_form.html' %}
+        </div>
+    </div>
+</div>
+{% endblock %}

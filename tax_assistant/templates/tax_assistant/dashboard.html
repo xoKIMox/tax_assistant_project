@@ -1,0 +1,145 @@
+{% extends 'tax_assistant/base.html' %}
+
+{% block title %}หน้าหลัก (Dashboard){% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto space-y-12">
+    <!-- Financial Overview -->
+    <section>
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-sm font-semibold uppercase tracking-widest text-neutral-400">Financial Overview</h2>
+            <span class="text-xs text-neutral-400 font-light">Last updated: Just now</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+            <!-- Income -->
+            <div class="bg-white dark:bg-neutral-900 p-8 rounded-3xl shadow-sm border border-neutral-100 dark:border-neutral-800 flex flex-col justify-between group hover:shadow-md transition-shadow duration-300 relative">
+                <div class="flex items-center justify-between">
+                    <p class="text-xs font-medium text-neutral-500 uppercase tracking-wider">Gross Income</p>
+                    <div class="relative group/tooltip">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-neutral-300 hover:text-indigo-500 cursor-help transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div class="invisible group-hover/tooltip:visible absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-3 bg-neutral-900 text-white text-[10px] rounded-xl shadow-xl z-50 transition-all duration-300 opacity-0 group-hover/tooltip:opacity-100">
+                            รายได้รวมทั้งหมดก่อนหักค่าใช้จ่ายและค่าลดหย่อน
+                            <div class="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-neutral-900"></div>
+                        </div>
+                    </div>
+                </div>
+                <h3 class="text-2xl font-bold text-emerald-500 mt-4 tracking-tight">฿{{ summary.gross_income }}</h3>
+            </div>
+            <!-- Expenses -->
+            <div class="bg-white dark:bg-neutral-900 p-8 rounded-3xl shadow-sm border border-neutral-100 dark:border-neutral-800 flex flex-col justify-between group hover:shadow-md transition-shadow duration-300 relative">
+                <div class="flex items-center justify-between">
+                    <p class="text-xs font-medium text-neutral-500 uppercase tracking-wider">Total Expenses</p>
+                    <div class="relative group/tooltip">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-neutral-300 hover:text-rose-500 cursor-help transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div class="invisible group-hover/tooltip:visible absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-3 bg-neutral-900 text-white text-[10px] rounded-xl shadow-xl z-50 transition-all duration-300 opacity-0 group-hover/tooltip:opacity-100">
+                            รวมค่าใช้จ่ายทั้งหมดที่คุณได้บันทึกไว้ในระบบ
+                            <div class="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-neutral-900"></div>
+                        </div>
+                    </div>
+                </div>
+                <h3 class="text-2xl font-bold text-rose-500 mt-4 tracking-tight">฿{{ summary.total_expenses }}</h3>
+            </div>
+            <!-- Balance -->
+            <div class="bg-white dark:bg-neutral-900 p-8 rounded-3xl shadow-sm border border-neutral-100 dark:border-neutral-800 flex flex-col justify-between group hover:shadow-md transition-shadow duration-300 relative">
+                <div class="flex items-center justify-between">
+                    <p class="text-xs font-medium text-neutral-500 uppercase tracking-wider">Net Balance</p>
+                    <div class="relative group/tooltip">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-neutral-300 hover:text-indigo-500 cursor-help transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div class="invisible group-hover/tooltip:visible absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-3 bg-neutral-900 text-white text-[10px] rounded-xl shadow-xl z-50 transition-all duration-300 opacity-0 group-hover/tooltip:opacity-100">
+                            รายได้สุทธิหลังหักค่าใช้จ่าย (Gross Income - Total Expenses)
+                            <div class="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-neutral-900"></div>
+                        </div>
+                    </div>
+                </div>
+                <h3 class="text-2xl font-bold text-indigo-500 mt-4 tracking-tight">฿{{ summary.net_balance }}</h3>
+            </div>
+            <!-- Allowance -->
+            <div class="bg-white dark:bg-neutral-900 p-8 rounded-3xl shadow-sm border border-neutral-100 dark:border-neutral-800 flex flex-col justify-between group hover:shadow-md transition-shadow duration-300 relative">
+                <div class="flex items-center justify-between">
+                    <p class="text-xs font-medium text-neutral-500 uppercase tracking-wider">Allowances</p>
+                    <div class="relative group/tooltip">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-neutral-300 hover:text-indigo-500 cursor-help transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div class="invisible group-hover/tooltip:visible absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-3 bg-neutral-900 text-white text-[10px] rounded-xl shadow-xl z-50 transition-all duration-300 opacity-0 group-hover/tooltip:opacity-100">
+                            สิทธิประโยชน์ทางภาษีที่คำนวณจากโปรไฟล์ของคุณ
+                            <div class="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-neutral-900"></div>
+                        </div>
+                    </div>
+                </div>
+                <h3 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mt-4 tracking-tight">฿{{ summary.total_allowance }}</h3>
+            </div>
+            <!-- Tax -->
+            <div class="bg-neutral-900 dark:bg-white p-8 rounded-3xl shadow-xl flex flex-col justify-between group relative">
+                <div class="flex items-center justify-between">
+                    <p class="text-xs font-medium text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">Estimated Tax</p>
+                    <div class="relative group/tooltip">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-neutral-600 dark:text-neutral-300 hover:text-indigo-400 cursor-help transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div class="invisible group-hover/tooltip:visible absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-3 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white text-[10px] rounded-xl shadow-xl z-50 transition-all duration-300 opacity-0 group-hover/tooltip:opacity-100">
+                            ประมาณการภาษีเงินได้บุคคลธรรมดาที่คุณต้องชำระ
+                            <div class="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-white dark:border-t-neutral-800"></div>
+                        </div>
+                    </div>
+                </div>
+                <h3 class="text-2xl font-bold text-white dark:text-neutral-900 mt-4 tracking-tight">฿{{ summary.estimated_tax }}</h3>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recent Transactions -->
+    <section>
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-sm font-semibold uppercase tracking-widest text-neutral-400">Recent Transactions</h2>
+            <a href="#" class="text-xs text-indigo-500 hover:underline font-medium">View All</a>
+        </div>
+        
+        <div class="bg-white dark:bg-neutral-900 rounded-3xl shadow-sm border border-neutral-100 dark:border-neutral-800 overflow-hidden">
+            <div class="divide-y divide-neutral-100 dark:divide-neutral-800">
+                {% for t in transactions %}
+                <a href="{% url 'transaction_detail' t.id %}" class="flex items-center justify-between p-6 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-all duration-200 group">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 rounded-2xl flex items-center justify-center {% if t.category.type == 'INCOME' %}bg-emerald-500/10 text-emerald-500{% elif t.category.type == 'EXPENSE' %}bg-rose-500/10 text-rose-500{% else %}bg-indigo-500/10 text-indigo-500{% endif %} group-hover:scale-110 transition-transform">
+                            {% if t.category.type == 'INCOME' %}
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                            {% else %}
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                            </svg>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <p class="font-semibold text-neutral-900 dark:text-neutral-100">{{ t.payee|default:"Unnamed Transaction" }}</p>
+                            <p class="text-xs text-neutral-400 font-light uppercase tracking-tighter">{{ t.date|date:"D, d M Y" }} &bull; {{ t.category.get_type_display }}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-lg font-bold tracking-tight {% if t.category.type == 'INCOME' %}text-emerald-500{% else %}text-neutral-900 dark:text-neutral-100{% endif %}">
+                            {% if t.category.type == 'INCOME' %}+{% endif %}฿{{ t.amount }}
+                        </p>
+                    </div>
+                </a>
+                {% empty %}
+                <div class="text-center py-20">
+                    <div class="w-16 h-16 bg-neutral-50 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-neutral-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                    </div>
+                    <p class="text-neutral-400 font-light">No transactions recorded yet.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

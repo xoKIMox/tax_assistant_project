@@ -1,0 +1,98 @@
+{% extends 'tax_assistant/base.html' %}
+
+{% block title %}Transaction Details{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="flex items-center justify-between mb-8">
+        <!-- Back Button -->
+        <a href="{% url 'dashboard' %}" class="inline-flex items-center space-x-2 text-neutral-400 hover:text-indigo-500 transition-colors group">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            <span class="text-sm font-medium">Back to Dashboard</span>
+        </a>
+        
+        <div class="flex items-center space-x-3">
+            <a href="{% url 'edit_transaction' t.id %}" class="px-4 py-2 text-sm font-medium text-neutral-600 bg-white dark:bg-neutral-800 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-700 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors">
+                Edit
+            </a>
+            <form action="{% url 'delete_transaction_action' t.id %}" method="POST" onsubmit="return confirm('Are you sure you want to delete this transaction? This cannot be undone.');" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="px-4 py-2 text-sm font-medium text-rose-600 bg-rose-50 dark:bg-rose-500/10 dark:text-rose-400 border border-rose-100 dark:border-rose-500/20 rounded-xl hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-colors">
+                    Delete
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-neutral-900 rounded-[2.5rem] shadow-2xl border border-neutral-100 dark:border-neutral-800 overflow-hidden">
+        <div class="p-12">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
+                <div>
+                    <h2 class="text-3xl font-bold text-neutral-900 dark:text-white tracking-tight mb-2">{{ t.payee|default:"Unnamed Transaction" }}</h2>
+                    <p class="text-neutral-400 font-light uppercase tracking-[0.2em] text-xs">{{ t.date|date:"l, d F Y" }}</p>
+                </div>
+                <div class="text-right">
+                    <span class="text-sm font-semibold uppercase tracking-widest text-neutral-400 block mb-2">Amount</span>
+                    <h3 class="text-4xl font-black tracking-tighter {% if t.category.type == 'INCOME' %}text-emerald-500{% else %}text-neutral-900 dark:text-white{% endif %}">
+                        {% if t.category.type == 'INCOME' %}+{% endif %}฿{{ t.amount }}
+                    </h3>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <div class="space-y-8">
+                    <div>
+                        <h4 class="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-3">Category & Type</h4>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-xl flex items-center justify-center {% if t.category.type == 'INCOME' %}bg-emerald-500/10 text-emerald-500{% elif t.category.type == 'EXPENSE' %}bg-rose-500/10 text-rose-500{% else %}bg-indigo-500/10 text-indigo-500{% endif %}">
+                                {% if t.category.type == 'INCOME' %}
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                {% else %}
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                                </svg>
+                                {% endif %}
+                            </div>
+                            <span class="text-neutral-900 dark:text-neutral-100 font-semibold">{{ t.category.name }} ({{ t.category.get_type_display }})</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-3">Transaction ID</h4>
+                        <p class="text-neutral-500 font-mono text-sm">#TX-{{ t.id|stringformat:"05d" }}</p>
+                    </div>
+
+                    <div class="pt-6">
+                        <button onclick="window.print()" class="px-6 py-3 bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 rounded-xl font-semibold text-sm hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors flex items-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                            </svg>
+                            <span>Print Details</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-4">Receipt Image</h4>
+                    {% if t.receipt_image %}
+                    <div class="rounded-3xl overflow-hidden border border-neutral-100 dark:border-neutral-800 shadow-sm group">
+                        <img src="{{ t.receipt_image.url }}" alt="Receipt" class="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500">
+                    </div>
+                    {% else %}
+                    <div class="aspect-[4/5] bg-neutral-50 dark:bg-neutral-800/50 rounded-3xl border-2 border-dashed border-neutral-100 dark:border-neutral-800 flex flex-col items-center justify-center text-neutral-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-4 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <p class="text-xs font-medium uppercase tracking-widest">No Image Available</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

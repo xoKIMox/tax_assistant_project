@@ -1,0 +1,71 @@
+{% if user_msg or user_text %}
+<div class='flex items-start space-x-4 justify-end'>
+    <div class='bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 p-6 rounded-3xl rounded-tr-none shadow-lg max-w-[75%]'>
+        {% if user_msg.image %}
+        <img src="{{ user_msg.image.url }}" class="rounded-2xl mb-3 max-w-full border border-neutral-800 dark:border-neutral-100 opacity-90">
+        {% endif %}
+        <p class="leading-relaxed font-medium">{{ user_msg.content|default:user_text }}</p>
+    </div>
+</div>
+{% endif %}
+
+<div class="flex items-start space-x-4">
+    <div class="w-10 h-10 rounded-2xl bg-white dark:bg-neutral-800 flex items-center justify-center shrink-0 shadow-sm border border-neutral-100 dark:border-neutral-700 text-indigo-500">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+        </svg>
+    </div>
+    <div class="bg-white dark:bg-neutral-900 p-6 rounded-3xl rounded-tl-none shadow-sm border border-neutral-100 dark:border-neutral-800 max-w-[75%]">
+        <p class="text-neutral-700 dark:text-neutral-300 leading-relaxed">{{ ai_reply }}</p>
+        
+        {% if ui_component %}
+        <div class="mt-6 p-4 bg-neutral-50 dark:bg-neutral-800/50 rounded-2xl border border-neutral-100 dark:border-neutral-700">
+            <canvas id="chart-{{ ui_component }}-{{ forloop.counter0 }}-{{ now|date:'U' }}" class="w-full"></canvas>
+            <script>
+                (function() {
+                    const ctx = document.getElementById('chart-{{ ui_component }}-{{ forloop.counter0 }}-{{ now|date:"U" }}').getContext('2d');
+                    const data = {{ ui_data|safe }};
+                    const type = '{{ ui_component }}';
+                    
+                    let chartConfig = {
+                        type: type === 'expense_pie' ? 'doughnut' : 'bar',
+                        data: {
+                            labels: data.labels,
+                            datasets: [{
+                                label: type === 'expense_pie' ? 'รายจ่าย' : 'จำนวนเงิน',
+                                data: data.values,
+                                backgroundColor: [
+                                    '#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'
+                                ],
+                                borderWidth: 0,
+                                borderRadius: 8
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        color: document.documentElement.classList.contains('dark') ? '#a3a3a3' : '#737373',
+                                        font: { family: 'Inter', size: 11 }
+                                    }
+                                }
+                            }
+                        }
+                    };
+                    
+                    if (type === 'income_expense_bar') {
+                        chartConfig.options.scales = {
+                            y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
+                            x: { grid: { display: false } }
+                        };
+                    }
+
+                    new Chart(ctx, chartConfig);
+                })();
+            </script>
+        </div>
+        {% endif %}
+    </div>
+</div>

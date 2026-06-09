@@ -1,0 +1,69 @@
+<form hx-post="{% url 'profile_settings' %}" hx-target="#profile-form-container" hx-swap="innerHTML" class="space-y-12">
+    {% csrf_token %}
+    
+    {% if success %}
+    <div class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-6 py-4 rounded-2xl text-sm font-semibold flex items-center space-x-3 animate-in fade-in slide-in-from-top-4 duration-500">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+        </svg>
+        <span>Settings saved successfully!</span>
+    </div>
+    {% endif %}
+
+    <!-- Section: Personal Info -->
+    <div class="space-y-6">
+        <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-neutral-400 border-b border-neutral-100 dark:border-neutral-800 pb-4">Personal Information</h3>
+        <div class="space-y-2">
+            <label class="block text-xs font-semibold text-neutral-500 uppercase tracking-widest ml-1">Nickname (ชื่อเล่นที่อยากให้ AI เรียก)</label>
+            {{ form.nickname }}
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+            <div class="space-y-2">
+                <label class="block text-xs font-semibold text-neutral-500 uppercase tracking-widest ml-1">Birth Date</label>
+                {{ form.birth_date }}
+            </div>
+            <div class="space-y-2">
+                <label class="block text-xs font-semibold text-neutral-500 uppercase tracking-widest ml-1">Marital Status</label>
+                {{ form.marital_status }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Section: Income -->
+    <div class="space-y-6">
+        <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-neutral-400 border-b border-neutral-100 dark:border-neutral-800 pb-4">Income Details</h3>
+        <div class="space-y-2">
+            <label class="block text-xs font-semibold text-neutral-500 uppercase tracking-widest ml-1">Monthly Base Salary (฿)</label>
+            {{ form.monthly_base_salary }}
+        </div>
+    </div>
+
+    <!-- Section: Dependents -->
+    <div class="space-y-6">
+        <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-neutral-400 border-b border-neutral-100 dark:border-neutral-800 pb-4">Dependents (Family Care)</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="space-y-2">
+                <label class="block text-xs font-semibold text-neutral-500 uppercase tracking-widest ml-1">Children (Born before 2018)</label>
+                {{ form.children_before_2018 }}
+            </div>
+            <div class="space-y-2">
+                <label class="block text-xs font-semibold text-neutral-500 uppercase tracking-widest ml-1">Children (Born after 2018)</label>
+                {{ form.children_after_2018 }}
+            </div>
+            <div class="space-y-2">
+                <label class="block text-xs font-semibold text-neutral-500 uppercase tracking-widest ml-1">Parents in Care</label>
+                {{ form.parents_care_count }}
+            </div>
+            <div class="space-y-2">
+                <label class="block text-xs font-semibold text-neutral-500 uppercase tracking-widest ml-1">Disabled Persons in Care</label>
+                {{ form.disabled_care_count }}
+            </div>
+        </div>
+    </div>
+
+    <div class="pt-8">
+        <button type="submit" class="w-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-bold py-4 rounded-2xl hover:scale-[1.02] active:scale-95 transition-all duration-300 shadow-xl shadow-neutral-900/10 flex items-center justify-center space-x-2">
+            <span>Save Settings</span>
+        </button>
+    </div>
+</form>

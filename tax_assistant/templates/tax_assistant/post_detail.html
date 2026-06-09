@@ -1,0 +1,86 @@
+{% extends 'tax_assistant/base.html' %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-8">
+    <!-- Back Button -->
+    <a href="{% url 'community_feed' %}" class="inline-flex items-center space-x-2 text-neutral-400 hover:text-indigo-500 transition-colors group">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        <span class="text-sm font-medium">Back to Community</span>
+    </a>
+
+    <!-- Post Content -->
+    <div class="bg-white dark:bg-neutral-900 border border-neutral-100 dark:border-neutral-800 rounded-[2.5rem] p-12 shadow-2xl">
+        <div class="flex items-center justify-between mb-8 pb-8 border-b border-neutral-100 dark:border-neutral-800">
+            <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center font-bold text-neutral-600 dark:text-neutral-300 text-lg">
+                    {{ post.author.profile.nickname|default:post.author.username|slice:":1"|upper }}
+                </div>
+                <div>
+                    <p class="text-base font-bold text-neutral-900 dark:text-neutral-100">{{ post.author.profile.nickname|default:post.author.username }}</p>
+                    <p class="text-xs text-neutral-400 tracking-wider uppercase">{{ post.created_at|date:"d M Y, H:i" }}</p>
+                </div>
+            </div>
+            
+            <!-- Like Button (HTMX) -->
+            <div id="like-button-container-{{ post.id }}">
+                {% include 'tax_assistant/_like_button.html' with is_liked=request.user in post.likes.all like_count=post.likes.count %}
+            </div>
+        </div>
+
+        <h1 class="text-3xl font-bold text-neutral-900 dark:text-white mb-6 leading-tight">{{ post.title }}</h1>
+        <div class="prose prose-neutral dark:prose-invert max-w-none text-neutral-600 dark:text-neutral-400 leading-relaxed whitespace-pre-wrap">
+            {{ post.content }}
+        </div>
+    </div>
+
+    <!-- Comments Section -->
+    <div class="bg-white dark:bg-neutral-900 border border-neutral-100 dark:border-neutral-800 rounded-[2.5rem] p-12 shadow-xl">
+        <h3 class="text-xl font-bold text-neutral-900 dark:text-white mb-8 border-b border-neutral-100 dark:border-neutral-800 pb-4">Comments ({{ comments.count }})</h3>
+        
+        <div class="space-y-8 mb-10">
+            {% for comment in comments %}
+            <div class="flex space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center font-bold text-neutral-600 dark:text-neutral-300 text-sm">
+                    {{ comment.author.profile.nickname|default:comment.author.username|slice:":1"|upper }}
+                </div>
+                <div class="flex-grow">
+                    <div class="bg-neutral-50 dark:bg-neutral-800/50 rounded-2xl rounded-tl-none p-5">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="font-bold text-sm text-neutral-900 dark:text-white">{{ comment.author.profile.nickname|default:comment.author.username }}</span>
+                            <span class="text-[10px] text-neutral-400 uppercase tracking-widest">{{ comment.created_at|timesince }} ago</span>
+                        </div>
+                        <p class="text-sm text-neutral-600 dark:text-neutral-400 whitespace-pre-wrap leading-relaxed">{{ comment.content }}</p>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-8 text-neutral-400 text-sm">
+                No comments yet. Be the first to reply!
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Add Comment Form -->
+        <form method="POST" class="mt-8 border-t border-neutral-100 dark:border-neutral-800 pt-8">
+            {% csrf_token %}
+            <div class="flex space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center font-bold text-indigo-600 dark:text-indigo-400 text-sm">
+                    {{ request.user.profile.nickname|default:request.user.username|slice:":1"|upper }}
+                </div>
+                <div class="flex-grow space-y-4">
+                    {{ form.content }}
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-6 py-2 rounded-xl text-sm font-bold hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors">
+                            Post Comment
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
