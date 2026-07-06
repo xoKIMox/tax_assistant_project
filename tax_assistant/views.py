@@ -41,7 +41,16 @@ def post_detail_view(request, pk):
     else:
         form = CommentForm()
         
-    return render(request, 'tax_assistant/post_detail.html', {'post': post, 'comments': comments, 'form': form})
+    is_liked = request.user in post.likes.all()
+    like_count = post.likes.count()
+        
+    return render(request, 'tax_assistant/post_detail.html', {
+        'post': post, 
+        'comments': comments, 
+        'form': form,
+        'is_liked': is_liked,
+        'like_count': like_count
+    })
 
 @login_required
 def like_post_view(request, pk):
@@ -94,8 +103,8 @@ def profile_settings_view(request):
 from .services import calculate_tax_summary
 import easyocr
 import datetime
-# from langchain_ollama import ChatOllama
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_ollama import ChatOllama
+# from langchain_google_genai import ChatGoogleGenerativeAI
 import os
 import dotenv
 
@@ -169,8 +178,8 @@ def upload_receipt_view(request):
         # 1. อ่านรูปด้วย EasyOCR
         extracted_text = " ".join(reader.readtext(image_bytes, detail=0))
 
-        # 2. ให้ Gemini จัดหมวดหมู่
-        llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0)
+        # 2. ให้ Ollama จัดหมวดหมู่
+        llm = ChatOllama(model="qwen2.5-coder", temperature=0)
         messages = [
             SystemMessage(content="Extract Date, Amount, Payee, Category(INCOME/EXPENSE/DEDUCTIBLE). Format: Date,Amount,Payee,Category"),
             HumanMessage(content=extracted_text)
@@ -238,7 +247,7 @@ def chat_api_view(request, session_id=None):
 
 กฎการตอบคำถาม:
 - หากผู้ใช้ถามถึง "สถานะการเงิน", "ยอดคงเหลือ", "สรุปยอด", หรือ "ปัจจุบันเป็นยังไง": ให้คุณนำข้อมูลจาก "ข้อมูลสรุปทางการเงินของผู้ใช้ ณ ปัจจุบัน" ด้านล่างนี้ไปตอบผู้ใช้โดยตรง **ห้ามเรียกใช้เครื่องมือใดๆ ทั้งสิ้น**
-- หากผู้ใช้สั่งให้ "บันทึก", "เพิ่ม", "จ่าย", หรือ "ได้รับ" (เช่น "กินข้าว 50", "ได้เงินเดือน"): ให้คุณพิจารณาเรียกใช้เครื่องมือ `record_transaction` เพื่อบันทึกข้อมูลใหม่ลงระบบ
+- หากผู้ใช้สั่งให้ "บันทึก", "เพิ่ม", "จ่าย", หรือ "ได้รับ" (เช่น "กินข้าว 50", "ได้เงินเดือน", หรือมีสลิป): คุณ **ต้อง** เรียกใช้เครื่องมือ `record_transaction` เสมอ ห้ามตอบว่าบันทึกแล้วโดยไม่ได้เรียกใช้เครื่องมือเด็ดขาด
 - หากผู้ใช้ต้องการดู "กราฟ", "รายงานสรุปแบบภาพ", หรือ "สถิติ": ให้เรียกใช้เครื่องมือ `generate_financial_chart`
 - หากเป็นคำถามทั่วไปที่ไม่เกี่ยวกับการเงิน: ให้ปฏิเสธอย่างสุภาพ
 
@@ -268,7 +277,7 @@ def chat_api_view(request, session_id=None):
         chart_tool = get_chart_tool()
         tools = [record_tool, chart_tool]
         
-        llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0)
+        llm = ChatOllama(model="qwen2.5-coder", temperature=0)
         llm_with_tools = llm.bind_tools(tools)
         
         ui_component = None
@@ -276,6 +285,30 @@ def chat_api_view(request, session_id=None):
         
         try:
             ai_msg = llm_with_tools.invoke(messages)
+            
+            # --- Ollama Fallback Parser ---
+            if not getattr(ai_msg, 'tool_calls', None) and ai_msg.content:
+                import json
+                content_str = str(ai_msg.content).strip()
+                if content_str.startswith('```json'):
+                    content_str = content_str[7:]
+                elif content_str.startswith('```'):
+                    content_str = content_str[3:]
+                if content_str.endswith('```'):
+                    content_str = content_str[:-3]
+                content_str = content_str.strip()
+                
+                try:
+                    parsed = json.loads(content_str)
+                    if isinstance(parsed, dict) and "name" in parsed and "arguments" in parsed:
+                        ai_msg.tool_calls = [{
+                            "name": parsed["name"],
+                            "args": parsed["arguments"],
+                            "id": "call_ollama_fallback"
+                        }]
+                except Exception:
+                    pass
+            # ------------------------------
             
             if hasattr(ai_msg, 'tool_calls') and ai_msg.tool_calls:
                 messages.append(ai_msg)
@@ -308,9 +341,22 @@ def chat_api_view(request, session_id=None):
                         messages.append(ToolMessage(content=tool_res, tool_call_id=tool_call["id"]))
                 
                 final_msg = llm_with_tools.invoke(messages)
-                res = final_msg.content
+                raw_content = final_msg.content
             else:
-                res = ai_msg.content
+                raw_content = ai_msg.content
+                
+            # Handle list content from LangChain Google GenAI
+            if isinstance(raw_content, list):
+                texts = []
+                for item in raw_content:
+                    if isinstance(item, dict) and 'text' in item:
+                        texts.append(item['text'])
+                    elif isinstance(item, str):
+                        texts.append(item)
+                res = " ".join(texts)
+            else:
+                res = str(raw_content)
+                
         except Exception as e:
             res = f"ขออภัยครับ ระบบเกิดข้อผิดพลาด: {str(e)}"
             

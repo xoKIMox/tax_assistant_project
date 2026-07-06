@@ -27,7 +27,7 @@
             
             <!-- Like Button (HTMX) -->
             <div id="like-button-container-{{ post.id }}">
-                {% include 'tax_assistant/_like_button.html' with is_liked=request.user in post.likes.all like_count=post.likes.count %}
+                {% include 'tax_assistant/_like_button.html' %}
             </div>
         </div>
 
